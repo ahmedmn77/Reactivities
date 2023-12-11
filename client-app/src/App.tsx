@@ -6,7 +6,7 @@ import { Header, List } from 'semantic-ui-react';
 function App() {
     const [activities, setActivities] = useState([]);
     
-    //happens as side effect when the component forst load
+    //happens as side effect when the component first load
     useEffect(() => {
         axios.get('http://localhost:5000/api/activities')
             .then(response => {
