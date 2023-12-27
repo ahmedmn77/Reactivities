@@ -1,3 +1,4 @@
+using Application.Activities;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -21,6 +22,7 @@ builder.Services.AddCors(opt =>
         policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
     });
 });
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(List.Handler).Assembly));
 
 
 var app = builder.Build();
@@ -39,7 +41,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using var scope = app.Services.CreateScope(); //we create a scope to access the services
+using var scope = app.Services.CreateScope(); //we create a scope to access the services to excute update-database and seed the data if needed
 var services = scope.ServiceProvider;
 
 try
