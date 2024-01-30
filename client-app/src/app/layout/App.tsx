@@ -1,73 +1,24 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios';
 import { Container } from 'semantic-ui-react';
-import { Activity } from '../models/activity';
 import NavBar from './NavBar';
-import ActivityDashboard from '../../features/activities/dashboard/ActivityDashboard';
-import {v4 as uuid} from 'uuid';
+import { observer } from 'mobx-react-lite';
+import { Outlet, useLocation } from 'react-router-dom';
+import HomePage from '../../features/Home/HomePage';
 
-
+//note: App is the first component loaded when you open the appication then when user open 
+//the route each compones on the route will render itself replacing the outlet
 function App() {
-    const [activities, setActivities] = useState<Activity[]>([]);
-    const [selectedActivity, setSelectedActivity] = useState<Activity | undefined>(undefined);
-    const [upSertMode,setUpSertMode] = useState(false);
-
-    //happens as side effect when the component first load
-    useEffect(() => {
-        axios.get<Activity[]>('http://localhost:5000/api/activities')
-            .then(response => {
-                setActivities(response.data)
-            })
-    }, [])
-
-    function handleSelectActivity(id: string) {
-        setSelectedActivity(activities.find(x => x.id === id))
-        setUpSertMode(false)
-    }
-
-    function handleCancelSelectActivity() {
-        setSelectedActivity(undefined);
-    }
-
-    function handleFormOpen(id?: string){
-        id? handleSelectActivity(id) : handleCancelSelectActivity()
-        setUpSertMode(true);
-    }
-
-    function handleFormClose() {
-        setUpSertMode(false)
-    }
-
-    function handleCreateOrEditActivity(activity: Activity) {
-        activity.id 
-            ? setActivities([...activities.filter(x => x.id != activity.id),activity]) //updating an activity
-            : setActivities([...activities, {...activity, id: uuid()}]); //add new activity with uuid
-        setUpSertMode(false);
-        setSelectedActivity(activity);
-    }
-
-    function handleDeleteActivity (id: string){
-        setActivities([...activities.filter(x => x.id !=id)]);
-    }
+    const location =useLocation();
 
     return (
         <>
-            <NavBar openForm={handleFormOpen}  />
-            <Container style={{ marginTop: '7em' }}>
-                <ActivityDashboard
-                    activities={activities}
-                    selectedActivity={selectedActivity}
-                    selectActivity={handleSelectActivity}
-                    cancelSelectActivity={handleCancelSelectActivity}
-                    upSertMode={upSertMode}
-                    openForm={handleFormOpen}
-                    closeForm={handleFormClose}
-                    createOrEdit={handleCreateOrEditActivity}
-                    deleteActivity ={handleDeleteActivity}
-
-                />
-            </Container>
+            {location.pathname === '/' ? <HomePage /> : (
+            <>
+                <NavBar />
+                <Container style={{ marginTop: '7em' }}>
+                    <Outlet/>
+                </Container>
+            </>) }
         </>
     )
 }
-export default App
+export default observer(App); 
